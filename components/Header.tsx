@@ -1,32 +1,49 @@
 import Link from "next/link";
 import { auth } from "@/auth";
-import { useCartStore } from "@/store/cartStore";
 import { ShoppingCartIcon } from "./Icons";
 import UserMenu from "./UserMenu";
 import CartCounter from "./CartCounter";
+import MobileMenu from "./MobileMenu";
 
 export default async function Header() {
   const session = await auth();
+  const isAdmin = session?.user?.role === "admin";
 
   return (
     <header className="bg-indigo-600 text-white shadow-lg sticky top-0 z-50">
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
-          <Link href="/" className="flex items-center space-x-2">
-            <span className="text-2xl font-bold">TechStore</span>
+          {/* Logo */}
+          <Link href="/" className="flex items-center space-x-2 flex-shrink-0">
+            <svg
+              className="w-8 h-8 text-white"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
+              />
+            </svg>
+            <span className="text-xl font-bold hidden sm:block">TechStore</span>
           </Link>
 
-          <nav className="flex items-center space-x-6">
+          {/* Navegación Desktop */}
+          <nav className="hidden md:flex items-center space-x-6">
             <Link
               href="/"
-              className="hover:text-indigo-200 transition-colors duration-200"
+              className="hover:text-indigo-200 transition-colors duration-200 font-medium"
             >
               Productos
             </Link>
-            {session?.user?.role === "admin" && (
+
+            {isAdmin && (
               <Link
                 href="/admin"
-                className="hover:text-indigo-200 transition-colors duration-200"
+                className="hover:text-indigo-200 transition-colors duration-200 font-medium"
               >
                 Admin
               </Link>
@@ -38,7 +55,7 @@ export default async function Header() {
             >
               <div className="flex items-center space-x-1">
                 <ShoppingCartIcon />
-                <span>Carrito</span>
+                <span className="font-medium">Carrito</span>
               </div>
               <CartCounter />
             </Link>
@@ -54,6 +71,28 @@ export default async function Header() {
               </Link>
             )}
           </nav>
+
+          {/* Mobile: Carrito + Menú hamburguesa */}
+          <div className="flex items-center gap-3 md:hidden">
+            {/* Carrito visible en móvil */}
+            <Link
+              href="/cart"
+              className="relative hover:text-indigo-200 transition-colors duration-200 p-1"
+            >
+              <ShoppingCartIcon />
+              <CartCounter />
+            </Link>
+
+            {/* Avatar en móvil si está logueado */}
+            {session?.user && <UserMenu user={session.user} />}
+
+            {/* Botón hamburguesa */}
+            <MobileMenu
+              isAdmin={isAdmin}
+              isLoggedIn={!!session?.user}
+              userName={session?.user?.name || ""}
+            />
+          </div>
         </div>
       </div>
     </header>
