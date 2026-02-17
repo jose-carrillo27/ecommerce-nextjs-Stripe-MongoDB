@@ -3,16 +3,21 @@ import Hero from "@/components/Hero";
 import { prisma } from "@/lib/prisma";
 import { Product } from "@/types";
 
-export const revalidate = 60;
+export const dynamic = "force-dynamic";
 
 async function getProducts(): Promise<Product[]> {
   try {
+    console.log("🔍 Conectando a la base de datos...");
+    console.log("DATABASE_URL exists:", !!process.env.DATABASE_URL);
+
     const products = await prisma.product.findMany({
       orderBy: { createdAt: "desc" },
     });
+
+    console.log(`✅ Productos encontrados: ${products.length}`);
     return products as unknown as Product[];
   } catch (error) {
-    console.error("Error fetching products:", error);
+    console.error("❌ Error fetching products:", error);
     return [];
   }
 }
@@ -35,10 +40,22 @@ export default async function Home() {
           </p>
         </div>
 
+        {/* Mensaje de debug - solo en desarrollo */}
+        {process.env.NODE_ENV === "development" && (
+          <div className="mb-4 p-4 bg-yellow-100 rounded-lg">
+            <p className="text-sm font-mono">
+              Productos encontrados: {products.length}
+            </p>
+          </div>
+        )}
+
         {products.length === 0 ? (
           <div className="text-center py-12">
-            <p className="text-gray-600 text-lg">
+            <p className="text-gray-600 text-lg mb-4">
               No hay productos disponibles
+            </p>
+            <p className="text-gray-500 text-sm">
+              Verifica la conexión a la base de datos
             </p>
           </div>
         ) : (
