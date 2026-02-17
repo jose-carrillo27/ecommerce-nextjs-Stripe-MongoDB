@@ -1,45 +1,52 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import Image from 'next/image';
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 interface ProductFormProps {
   product?: any;
   isEdit?: boolean;
 }
 
-export default function ProductForm({ product, isEdit = false }: ProductFormProps) {
+export default function ProductForm({
+  product,
+  isEdit = false,
+}: ProductFormProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
-  const [imagePreview, setImagePreview] = useState(product?.image || '');
-  
+  const [imagePreview, setImagePreview] = useState(product?.image || "");
+
   // Estado del formulario
   const [formData, setFormData] = useState({
-    name: product?.name || '',
-    description: product?.description || '',
-    price: product?.price || '',
-    category: product?.category || '',
-    image: product?.image || '',
-    images: product?.images?.join('\n') || '',
+    name: product?.name || "",
+    description: product?.description || "",
+    price: product?.price || "",
+    category: product?.category || "",
+    image: product?.image || "",
+    images: product?.images?.join("\n") || "",
     inStock: product?.inStock ?? true,
-    rating: product?.rating || '',
-    reviews: product?.reviews || '',
+    rating: product?.rating || "",
+    reviews: product?.reviews || "",
     specifications: JSON.stringify(product?.specifications || {}, null, 2),
-    features: product?.features?.join('\n') || '',
+    features: product?.features?.join("\n") || "",
   });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >,
+  ) => {
     const { name, value, type } = e.target;
-    
-    if (type === 'checkbox') {
+
+    if (type === "checkbox") {
       const checked = (e.target as HTMLInputElement).checked;
-      setFormData(prev => ({ ...prev, [name]: checked }));
+      setFormData((prev) => ({ ...prev, [name]: checked }));
     } else {
-      setFormData(prev => ({ ...prev, [name]: value }));
-      
+      setFormData((prev) => ({ ...prev, [name]: value }));
+
       // Actualizar preview de imagen
-      if (name === 'image') {
+      if (name === "image") {
         setImagePreview(value);
       }
     }
@@ -57,35 +64,37 @@ export default function ProductForm({ product, isEdit = false }: ProductFormProp
         price: parseFloat(formData.price),
         category: formData.category,
         image: formData.image,
-        images: formData.images.split('\n').filter(url => url.trim()),
+        images: formData.images.split("\n").filter((url: string) => url.trim()),
         inStock: formData.inStock,
         rating: formData.rating ? parseFloat(formData.rating) : null,
         reviews: formData.reviews ? parseInt(formData.reviews) : null,
-        specifications: formData.specifications ? JSON.parse(formData.specifications) : {},
-        features: formData.features.split('\n').filter(f => f.trim()),
+        specifications: formData.specifications
+          ? JSON.parse(formData.specifications)
+          : {},
+        features: formData.features.split("\n").filter((f: string) => f.trim()),
       };
 
-      const url = isEdit ? `/api/products/${product.id}` : '/api/products';
-      const method = isEdit ? 'PUT' : 'POST';
+      const url = isEdit ? `/api/products/${product.id}` : "/api/products";
+      const method = isEdit ? "PUT" : "POST";
 
       const response = await fetch(url, {
         method,
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(processedData),
       });
 
       if (response.ok) {
-        router.push('/admin/products');
+        router.push("/admin/products");
         router.refresh();
       } else {
         const error = await response.json();
         alert(`Error: ${error.error}`);
       }
     } catch (error) {
-      console.error('Error:', error);
-      alert('Error al guardar el producto');
+      console.error("Error:", error);
+      alert("Error al guardar el producto");
     } finally {
       setLoading(false);
     }
@@ -98,7 +107,7 @@ export default function ProductForm({ product, isEdit = false }: ProductFormProp
         <h2 className="text-xl font-bold text-gray-900 mb-6">
           Información Básica
         </h2>
-        
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="md:col-span-2">
             <label className="block text-sm font-semibold text-gray-700 mb-2">
@@ -220,9 +229,7 @@ export default function ProductForm({ product, isEdit = false }: ProductFormProp
 
       {/* Imágenes */}
       <div className="bg-white rounded-lg shadow-md p-6">
-        <h2 className="text-xl font-bold text-gray-900 mb-6">
-          Imágenes
-        </h2>
+        <h2 className="text-xl font-bold text-gray-900 mb-6">Imágenes</h2>
 
         <div className="space-y-6">
           <div>
@@ -247,7 +254,7 @@ export default function ProductForm({ product, isEdit = false }: ProductFormProp
                     alt="Preview"
                     fill
                     className="object-cover"
-                    onError={() => setImagePreview('')}
+                    onError={() => setImagePreview("")}
                   />
                 </div>
               </div>
@@ -267,7 +274,8 @@ export default function ProductForm({ product, isEdit = false }: ProductFormProp
               placeholder="https://images.unsplash.com/photo-1...&#10;https://images.unsplash.com/photo-2...&#10;https://images.unsplash.com/photo-3..."
             />
             <p className="text-sm text-gray-500 mt-2">
-              Agrega una URL por línea. Estas se usarán en el carrusel de imágenes.
+              Agrega una URL por línea. Estas se usarán en el carrusel de
+              imágenes.
             </p>
           </div>
         </div>
@@ -329,7 +337,7 @@ export default function ProductForm({ product, isEdit = false }: ProductFormProp
       <div className="flex gap-4">
         <button
           type="button"
-          onClick={() => router.push('/admin/products')}
+          onClick={() => router.push("/admin/products")}
           className="flex-1 bg-gray-200 text-gray-700 py-4 rounded-lg hover:bg-gray-300 transition-colors font-semibold text-lg"
           disabled={loading}
         >
@@ -340,7 +348,11 @@ export default function ProductForm({ product, isEdit = false }: ProductFormProp
           className="flex-1 bg-indigo-600 text-white py-4 rounded-lg hover:bg-indigo-700 transition-colors font-semibold text-lg disabled:opacity-50"
           disabled={loading}
         >
-          {loading ? 'Guardando...' : isEdit ? 'Actualizar Producto' : 'Crear Producto'}
+          {loading
+            ? "Guardando..."
+            : isEdit
+              ? "Actualizar Producto"
+              : "Crear Producto"}
         </button>
       </div>
     </form>
