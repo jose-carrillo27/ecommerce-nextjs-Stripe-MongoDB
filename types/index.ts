@@ -1,18 +1,20 @@
+import { JsonValue } from '@prisma/client/runtime/library';
+
 export interface Product {
   id: string;
   name: string;
   description: string;
   price: number;
   image: string;
-  images?: string[]; // Múltiples imágenes para el carrusel
+  images: string[];
   category: string;
-  specifications?: {
-    [key: string]: string;
-  };
-  features?: string[];
-  inStock?: boolean;
-  rating?: number;
-  reviews?: number;
+  inStock: boolean;
+  rating: number | null;
+  reviews: number | null;
+  specifications: JsonValue | { [key: string]: string } | null;
+  features: string[];
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 export interface CartItem extends Product {
@@ -29,25 +31,17 @@ export interface CartStore {
   getTotalItems: () => number;
 }
 
-// Tipos de autenticación
-export interface User {
-  id: string;
-  name?: string | null;
-  email?: string | null;
-  image?: string | null;
-   role?: string;
-}
-
-export interface Session {
-  user?: User;
-  expires: string;
-}
-
-declare module "next-auth" {
+declare module 'next-auth' {
   interface Session {
-    user?: User;
+    user?: {
+      id?: string;
+      name?: string | null;
+      email?: string | null;
+      image?: string | null;
+      role?: string;
+    };
   }
-  
+
   interface User {
     role?: string;
   }

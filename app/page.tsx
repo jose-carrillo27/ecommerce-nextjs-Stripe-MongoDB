@@ -3,16 +3,14 @@ import Hero from "@/components/Hero";
 import { prisma } from "@/lib/prisma";
 import { Product } from "@/types";
 
-export const revalidate = 60; // Revalidar cada 60 segundos
+export const revalidate = 60;
 
-async function getProducts() {
+async function getProducts(): Promise<Product[]> {
   try {
     const products = await prisma.product.findMany({
-      orderBy: {
-        createdAt: "desc",
-      },
+      orderBy: { createdAt: "desc" },
     });
-    return products;
+    return products as unknown as Product[];
   } catch (error) {
     console.error("Error fetching products:", error);
     return [];
@@ -45,7 +43,7 @@ export default async function Home() {
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {products.map((product: Product) => (
+            {products.map((product) => (
               <ProductCard key={product.id} product={product} />
             ))}
           </div>
